@@ -1,3 +1,7 @@
+#include <stdio.h>
+
+#include "util.h"
+
 typedef enum
 {
     PROCESSING, // это если идет обработка в рекурсивном вызове
@@ -22,10 +26,30 @@ typedef struct
 
 int main(int argc, char *argv[])
 {
+    // Check command line arguments
+    if (argc < 2)
+    {
+        fprintf(stderr, "Usage: %s <csv_filename>\n", argv[0]);
+        return 1;
+    }
+    
+    // Open the file
+    FILE *file = fopen(argv[1], "r");
+    if (file == NULL)
+    {
+        fprintf(stderr, "Error: Cannot open file '%s'\n", argv[1]);
+        return 1;
+    }
+    
     // структуры данных
     char ** headers; // названия столбцов, N штук
     int * indices; // массив индексов строк, M штук 
     Cell ** data; // двумерных массив ячеек, размера M в высоту x N в ширину
+    
+    char * headers_str = read_line(file);
+    printf("%s\n", headers_str);
+    
+    fclose(file);
 
     return 0;
 }
