@@ -22,14 +22,14 @@ endif()
 # Source files (add all your .c files here)
 set(SOURCES
     main.c
-    # other_source.c
+    util.c
     # another_source.c
 )
 
 # Header files (optional, for IDE support)
 set(HEADERS
     # config.h
-    # utils.h
+    util.h
 )
 
 # Create executable
