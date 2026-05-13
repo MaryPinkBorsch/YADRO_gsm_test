@@ -50,12 +50,17 @@ int main(int argc, char *argv[])
     Cell ** data; // двумерных массив ячеек, размера M в высоту x N в ширину
 
     char * headers_str = NULL;
-    int capacity;
+    int capacity = 0;
     
     bool success = read_line(file, &headers_str, &capacity);
-    printf("%s\n", headers_str);
+    while (success) 
+    {
+        printf("%s", headers_str);
+        success = read_line(file, &headers_str, &capacity);
+    }
     
     fclose(file);
+    free(headers_str);
 
     return 0;
 }

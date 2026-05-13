@@ -53,7 +53,6 @@ bool read_line(FILE *f, char ** buf, int * capacity)
 
     if (len == 0)
     {
-        free(*buf);
         return false;
     }
     return true;
