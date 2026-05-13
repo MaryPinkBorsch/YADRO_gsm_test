@@ -7,17 +7,15 @@ project(YadroEXCEL C)
 # Set C standard
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Optional: Set build type to Release if not specified
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type" FORCE)
 endif()
 
-# Add compiler flags (optional)
-if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
-    # Enable warnings
-    add_compile_options(-Wall -Wextra -Wpedantic)
-endif()
+# Add compiler flags
+add_compile_options(-g -O0 -Wall -Wextra -Wpedantic)
 
 # Source files (add all your .c files here)
 set(SOURCES

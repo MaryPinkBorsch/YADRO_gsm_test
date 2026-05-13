@@ -12,8 +12,11 @@ typedef enum
 typedef struct
 {
     CELL_TYPE cell_type;
-    int val;
-    char *expression;
+    union 
+    {
+        int val;
+        char *expression;
+    };
 } Cell;
 
 /*  
@@ -45,8 +48,11 @@ int main(int argc, char *argv[])
     char ** headers; // названия столбцов, N штук
     int * indices; // массив индексов строк, M штук 
     Cell ** data; // двумерных массив ячеек, размера M в высоту x N в ширину
+
+    char * headers_str = NULL;
+    int capacity;
     
-    char * headers_str = read_line(file);
+    bool success = read_line(file, &headers_str, &capacity);
     printf("%s\n", headers_str);
     
     fclose(file);
