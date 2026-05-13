@@ -2,22 +2,24 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <ctype.h>
 
 #include "util.h"
 
 // cчитывает строчку из файла произвольной длины и возвращает в выделенной строке
 // capacity is buf size
 // returns true on success
-bool read_line(FILE *f, char ** buf, int * capacity)
+bool read_line(FILE *f, char **buf, int *capacity)
 {
     static const size_t CHUNK_SIZE = 128;
     size_t len = 0;
-    if (!(*buf)) 
+    if (!(*buf))
     {
         if (*capacity < CHUNK_SIZE)
             *capacity = CHUNK_SIZE;
-        *buf = malloc(*capacity); 
-    } else if (*capacity < CHUNK_SIZE) 
+        *buf = malloc(*capacity);
+    }
+    else if (*capacity < CHUNK_SIZE)
     {
         *capacity = CHUNK_SIZE;
         *buf = realloc(*buf, *capacity);
@@ -56,4 +58,147 @@ bool read_line(FILE *f, char ** buf, int * capacity)
         return false;
     }
     return true;
+}
+
+
+
+/**
+ * Токенизация CSV строки по разделителю-запятой
+ *
+ * @param input - входная строка
+ * @param tokens - выходной массив указателей на токены (должен быть предварительно выделен)
+ * @param max_tokens - максимальное количество токенов
+ * @return количество найденных токенов
+ */
+int csv_tokenize(const char *input, char **tokens, int max_tokens)
+{
+    if (input == NULL || tokens == NULL || max_tokens <= 0)
+    {
+        return 0;
+    }
+
+    int token_count = 0;
+    const char *start = input;
+    const char *current = input;
+
+    while (*current != '\0' && token_count < max_tokens)
+    {
+        if (*current == ',')
+        {
+            // Нашли разделитель, извлекаем токен
+            int length = current - start;
+
+            // Выделяем память под токен
+            tokens[token_count] = (char *)malloc(length + 1);
+            if (tokens[token_count] == NULL)
+            {
+                // Очистка при ошибке
+                for (int i = 0; i < token_count; i++)
+                {
+                    free(tokens[i]);
+                    tokens[i] = NULL;
+                }
+                return 0;
+            }
+
+            // Копируем токен
+            strncpy(tokens[token_count], start, length);
+            tokens[token_count][length] = '\0';
+
+            token_count++;
+            start = current + 1;
+        }
+        current++;
+    }
+
+    // Последний токен (после последней запятой или вся строка)
+    if (token_count < max_tokens)
+    {
+        int length = current - start;
+        tokens[token_count] = (char *)malloc(length + 1);
+        if (tokens[token_count] != NULL)
+        {
+            strncpy(tokens[token_count], start, length);
+            tokens[token_count][length] = '\0';
+            token_count++;
+        }
+    }
+
+    return token_count;
+}
+
+/**
+ * Улучшенная версия с обработкой пустых полей
+ * (например: "a,,c" -> токены "a", "", "c")
+ */
+int csv_tokenize_advanced(const char *input, char **tokens, int max_tokens)
+{
+    if (input == NULL || tokens == NULL || max_tokens <= 0)
+    {
+        return 0;
+    }
+
+    int token_count = 0;
+    const char *start = input;
+    const char *current = input;
+
+    while (*current != '\0' && token_count < max_tokens)
+    {
+        if (*current == ',')
+        {
+            // Нашли разделитель
+            int length = current - start;
+
+            // Выделяем память под токен (даже если пустой)
+            tokens[token_count] = (char *)malloc(length + 1);
+            if (tokens[token_count] == NULL)
+            {
+                for (int i = 0; i < token_count; i++)
+                {
+                    free(tokens[i]);
+                    tokens[i] = NULL;
+                }
+                return 0;
+            }
+
+            // Копируем токен (для пустого поля length=0)
+            strncpy(tokens[token_count], start, length);
+            tokens[token_count][length] = '\0';
+
+            token_count++;
+            start = current + 1;
+        }
+        current++;
+    }
+
+    // Последний токен
+    if (token_count < max_tokens)
+    {
+        int length = current - start;
+        tokens[token_count] = (char *)malloc(length + 1);
+        if (tokens[token_count] != NULL)
+        {
+            strncpy(tokens[token_count], start, length);
+            tokens[token_count][length] = '\0';
+            token_count++;
+        }
+    }
+
+    return token_count;
+}
+ 
+
+/**
+ * Освобождение памяти, выделенной под токены
+ */
+void free_tokens(char **tokens, int count)
+{
+    for (int i = 0; i < count; i++)
+    {
+        if (tokens[i] != NULL)
+        {
+            free(tokens[i]);
+            tokens[i] = NULL;
+        }
+    }
 }
