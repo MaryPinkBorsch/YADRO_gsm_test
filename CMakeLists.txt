@@ -21,6 +21,7 @@ add_compile_options(-g -O0 -Wall -Wextra -Wpedantic)
 set(SOURCES
     main.c
     util.c
+    int_int_hash_table.c
     # another_source.c
 )
 
@@ -28,6 +29,7 @@ set(SOURCES
 set(HEADERS
     # config.h
     util.h
+    int_int_hash_table.h
 )
 
 # Create executable

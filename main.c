@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include "util.h"
+#include "int_int_hash_table.h"
 
 typedef enum
 {
@@ -45,10 +46,10 @@ int main(int argc, char *argv[])
     // структуры данных
     static const int MAX_HEADERS = 4096; // названия столбцов, N штук
     char *headers[MAX_HEADERS];
-    int *indices;   // массив индексов строк, M штук
-    Cell **data;    // двумерных массив ячеек, размера M в высоту x N в ширину
+    int *indices; // массив индексов строк, M штук
+    Cell **data;  // двумерных массив ячеек, размера M в высоту x N в ширину
 
-    char *headers_str = malloc(1024*1024);
+    char *headers_str = malloc(1024 * 1024);
     char *buf = NULL;
 
     int capacity = 0;
@@ -67,8 +68,17 @@ int main(int argc, char *argv[])
     int num_headers = csv_tokenize(headers_str, headers, MAX_HEADERS);
 
     printf("\nSTOLBZI:\n");
-    for(int i =0; i < num_headers;i++)
+    for (int i = 0; i < num_headers; i++)
         printf("%s\n", headers[i]);
+
+    IntIntHashTable i_ht;
+    int_int_ht_init(&i_ht);
+    int_int_ht_set(&i_ht, 42, 666);
+    int out = 0;
+    int_int_ht_get(&i_ht, 42, &out);
+    printf("\nHASH TEST:\n");
+    printf("%d\n", out);
+    int_int_ht_destroy(&i_ht);
 
     free_tokens(headers, num_headers);
     fclose(file);
