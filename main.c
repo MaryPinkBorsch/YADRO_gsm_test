@@ -1,24 +1,8 @@
 #include <stdio.h>
 
+#include "common.h"
 #include "util.h"
 #include "int_int_hash_table.h"
-
-typedef enum
-{
-    PROCESSING, // это если идет обработка в рекурсивном вызове
-    VALUE,      // это если уже высчитали число и оно готово
-    EXPRESSION  // это если ссылка на др клетку
-} CELL_TYPE;
-
-typedef struct
-{
-    CELL_TYPE cell_type;
-    union
-    {
-        int val;
-        char *expression;
-    };
-} Cell;
 
 /*
 структура ЦСВ:
@@ -59,17 +43,38 @@ int main(int argc, char *argv[])
     {
         strcpy(headers_str, buf);
     }
-    while (success)
-    {
-        printf("%s", buf);
-        success = read_line(file, &buf, &capacity);
-    }
-
     int num_headers = csv_tokenize(headers_str, headers, MAX_HEADERS);
-
     printf("\nSTOLBZI:\n");
     for (int i = 0; i < num_headers; i++)
         printf("%s\n", headers[i]);
+
+    int cap_rows = 8;
+    indices = malloc(sizeof(int)*cap_rows);
+    data = malloc(sizeof(Cell*)*cap_rows);
+    int num_rows = 0;
+    while (success)
+    {
+        if (num_rows == cap_rows)
+        {
+            cap_rows *= 2;
+            int * tmp1 = realloc(*indices, cap_rows * sizeof(int));
+            if (!tmp1) goto big_fail;
+            indices = tmp1;
+            int * tmp2 = realloc(*data, cap_rows * sizeof(Cell*));
+            if (!tmp2) goto big_fail;
+            data = tmp2;
+        }
+
+        printf("%s", buf);
+        success = read_line(file, &buf, &capacity);
+
+        int num_row_cells = 0;
+        success = string_to_cell_and_index(buf,&(data[num_rows]), & num_row_cells, &(indices[num_rows]));
+        success &= num_row_cells == num_headers-1; // first header is empty / doesn't count
+        if (!success)
+            goto big_fail;
+        ++num_rows;
+    }
 
     IntIntHashTable i_ht;
     int_int_ht_init(&i_ht);
@@ -84,6 +89,8 @@ int main(int argc, char *argv[])
     fclose(file);
     free(headers_str);
     free(buf);
+
+big_fail:    
 
     return 0;
 }

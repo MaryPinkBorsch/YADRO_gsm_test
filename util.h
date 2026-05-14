@@ -1,3 +1,7 @@
+#pragma once
+
+#include "common.h"
+
 #include <stdio.h>
 #include <stdbool.h>
 
@@ -27,3 +31,5 @@ int csv_tokenize_advanced(const char *input, char **tokens, int max_tokens);
  * Освобождение памяти, выделенной под токены
  */
 void free_tokens(char **tokens, int count);
+
+bool string_to_cell_and_index(const char* str, Cell ** cells, int * num_cells, int * index);

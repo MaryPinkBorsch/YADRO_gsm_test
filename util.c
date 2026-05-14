@@ -202,3 +202,90 @@ void free_tokens(char **tokens, int count)
         }
     }
 }
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include <ctype.h>
+
+static bool is_number(const char *s)
+{
+    if (*s == '\0') return false;
+    for (const char *p = s; *p; p++)
+        if (!isdigit((unsigned char)*p)) return false;
+    return true;
+}
+
+bool string_to_cell_and_index(const char *str, Cell ** out_cells, int *out_num_cells, int *out_index)
+{
+    int count = 0;
+    int cap = 8;
+    const char *start = str;
+    const char *end;
+
+    *out_cells = malloc(cap * sizeof(Cell));
+
+    // parse index
+    end = strchr(start, ',');
+    *out_index = strtol(start, &end, 10);
+    start = end + 1;
+
+    while ((end = strchr(start, ',')) != NULL)
+    {
+        Cell tmp_cell;
+        if (count == cap)
+        {
+            cap *= 2;
+            Cell *tmp = realloc(*out_cells, cap * sizeof(Cell));
+            if (!tmp) goto fail_toks;
+            *out_cells = tmp;
+        }
+        if (*start == '=') 
+        {
+            // parse function
+            tmp_cell.expression = malloc(end-start+1);
+            memset(tmp_cell.expression, 0, end-start+1);
+            strncpy(tmp_cell.expression,start, end-start); 
+            tmp_cell.cell_type = EXPRESSION;
+        }
+        else 
+        {
+            // parse number
+            tmp_cell.val = strtol(start, &end, 10);
+            tmp_cell.cell_type = VALUE;
+        }
+        (*out_cells)[count] = tmp_cell;
+        ++count;
+        start = end + 1;
+    }
+    Cell tmp_cell;
+    if (count == cap)
+    {
+        cap *= 2;
+        Cell *tmp = realloc(*out_cells, cap * sizeof(Cell));
+        if (!tmp) goto fail_toks;
+        *out_cells = tmp;
+    }
+    if (*start == '=') 
+    {
+        // parse function
+        tmp_cell.expression = malloc(end-start+1);
+        memset(tmp_cell.expression, 0, end-start+1);
+        strncpy(tmp_cell.expression,start, end-start); 
+        tmp_cell.cell_type = EXPRESSION;
+    }
+    else 
+    {
+        // parse number
+        tmp_cell.val = strtol(start, &end, 10);
+        tmp_cell.cell_type = VALUE;
+    }
+    (*out_cells)[count] = tmp_cell;
+    ++count;
+    *out_num_cells = count;
+    return true;
+
+fail_toks:
+    return false;
+}

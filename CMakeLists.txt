@@ -29,6 +29,7 @@ set(SOURCES
 set(HEADERS
     # config.h
     util.h
+    common.h
     int_int_hash_table.h
 )
 
