@@ -92,7 +92,7 @@ static int str_int_ht_hash(const char* key)
 
 bool str_int_ht_set(StrIntHashTable *ht, const char* key, int value)
 {
-    int b = str_int_ht_hash(key);
+    int b = str_int_ht_hash(key) % STR_INT_BUCKETS;
     for (StrIntEntry *e = ht->buckets[b]; e; e = e->next)
     {
         if (strcmp(e->key, key) == 0)
@@ -114,7 +114,7 @@ bool str_int_ht_set(StrIntHashTable *ht, const char* key, int value)
 
 bool str_int_ht_get(StrIntHashTable *ht, const char* key, int *out)
 {
-    int b = str_int_ht_hash(key);
+    int b = str_int_ht_hash(key) % STR_INT_BUCKETS;
     for (StrIntEntry *e = ht->buckets[b]; e; e = e->next)
     {
         if (strcmp(e->key, key) == 0)
@@ -128,7 +128,7 @@ bool str_int_ht_get(StrIntHashTable *ht, const char* key, int *out)
 
 bool str_int_ht_delete(StrIntHashTable *ht, const char* key)
 {
-    int b = str_int_ht_hash(key);
+    int b = str_int_ht_hash(key) % STR_INT_BUCKETS;
     StrIntEntry **cur = &ht->buckets[b];
     while (*cur)
     {

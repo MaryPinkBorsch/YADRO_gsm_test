@@ -51,9 +51,8 @@ int main(int argc, char *argv[])
         strcpy(headers_str, buf);
     }
     int num_headers = csv_tokenize(headers_str, headers, MAX_HEADERS);
-    for (int i = 0; i < num_headers; i++) 
+    for (int i = 1; i < num_headers; i++) 
     {
-        printf("%s -> %d\n", headers[i], i);
         str_int_ht_set(&str_ht, headers[i], i);
     }
 
@@ -76,6 +75,8 @@ int main(int argc, char *argv[])
 
         printf("%s", buf);
         success = read_line(file, &buf, &capacity);
+        if (!success)
+            break;
 
         int num_row_cells = 0;
         success = string_to_cell_and_index(buf,&(data[num_rows]), & num_row_cells, &(indices[num_rows]));
@@ -86,12 +87,39 @@ int main(int argc, char *argv[])
         ++num_rows;
     }
 
-    // int out = 0;
-    // int_int_ht_get(&i_ht, 42, &out);
-    // printf("\nHASH TEST:\n");
-    // printf("%d\n", out);
+    printf("\n");
+    {
+        int testkey = 1;
+        int testvalue = 0;
+        int_int_ht_get(&i_ht, testkey, &testvalue);
+        printf("%d -> %d\n", testkey, testvalue);
+        testkey = 2;
+        testvalue = 0;
+        int_int_ht_get(&i_ht, testkey, &testvalue);
+        printf("%d -> %d\n", testkey, testvalue);
+        testkey = 30;
+        testvalue = 0;
+        int_int_ht_get(&i_ht, testkey, &testvalue);
+        printf("%d -> %d\n", testkey, testvalue);
+    }
+
+    {
+        char * testkey1 = "A";
+        char * testkey2 = "B";
+        char * testkey3 = "Cell";
+        int testvalue = 666;
+        str_int_ht_get(&str_ht, testkey1, &testvalue);
+        printf("%s -> %d\n", testkey1, testvalue);
+        testvalue = 666;
+        str_int_ht_get(&str_ht, testkey2, &testvalue);
+        printf("%s -> %d\n", testkey2, testvalue);
+        testvalue = 666;
+        str_int_ht_get(&str_ht, testkey3, &testvalue);
+        printf("%s -> %d\n", testkey3, testvalue);
+    }
 
     int_int_ht_destroy(&i_ht);
+    str_int_ht_destroy(&str_ht);
     free_tokens(headers, num_headers);
     fclose(file);
     free(headers_str);

@@ -53,6 +53,11 @@ bool read_line(FILE *f, char **buf, int *capacity)
             break;
     }
 
+    if ((*buf)[len-1] == '\n') 
+    {
+        (*buf)[len-1] = 0;
+        --len;
+    }
     if (len == 0)
     {
         return false;
