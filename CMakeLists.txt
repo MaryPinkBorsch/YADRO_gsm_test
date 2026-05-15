@@ -22,6 +22,7 @@ set(SOURCES
     main.c
     util.c
     int_int_hash_table.c
+    str_int_hash_table.c
     # another_source.c
 )
 
@@ -31,6 +32,7 @@ set(HEADERS
     util.h
     common.h
     int_int_hash_table.h
+    str_int_hash_table.h
 )
 
 # Create executable

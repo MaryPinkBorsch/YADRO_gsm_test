@@ -67,7 +67,10 @@ void int_int_ht_destroy(IntIntHashTable *ht)
 
 static int int_int_ht_hash(int key)
 {
-    return (key < 0 ? -key : key) % INT_INT_BUCKETS; // TODO: real hash function
+    // Use large prime numbers for multiplication and addition
+    unsigned int hash = key * 2654435761u;  // Multiplication by a prime (golden ratio ~ 2^32/φ)
+    hash = hash + 101u;                     // Add another prime
+    return hash % INT_INT_BUCKETS; 
 }
 
 bool int_int_ht_set(IntIntHashTable *ht, int key, int value)

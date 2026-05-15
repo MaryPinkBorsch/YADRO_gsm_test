@@ -1,8 +1,10 @@
 #include <stdio.h>
+#include <string.h>
 
 #include "common.h"
 #include "util.h"
 #include "int_int_hash_table.h"
+#include "str_int_hash_table.h"
 
 /*
 структура ЦСВ:
@@ -35,6 +37,11 @@ int main(int argc, char *argv[])
 
     char *headers_str = malloc(1024 * 1024);
     char *buf = NULL;
+    IntIntHashTable i_ht;
+    int_int_ht_init(&i_ht);
+
+    StrIntHashTable str_ht;
+    str_int_ht_init(&str_ht);
 
     int capacity = 0;
 
@@ -44,9 +51,11 @@ int main(int argc, char *argv[])
         strcpy(headers_str, buf);
     }
     int num_headers = csv_tokenize(headers_str, headers, MAX_HEADERS);
-    printf("\nSTOLBZI:\n");
-    for (int i = 0; i < num_headers; i++)
-        printf("%s\n", headers[i]);
+    for (int i = 0; i < num_headers; i++) 
+    {
+        printf("%s -> %d\n", headers[i], i);
+        str_int_ht_set(&str_ht, headers[i], i);
+    }
 
     int cap_rows = 8;
     indices = malloc(sizeof(int)*cap_rows);
@@ -57,12 +66,12 @@ int main(int argc, char *argv[])
         if (num_rows == cap_rows)
         {
             cap_rows *= 2;
-            int * tmp1 = realloc(*indices, cap_rows * sizeof(int));
+            int * tmp1 = realloc(indices, cap_rows * sizeof(int));
             if (!tmp1) goto big_fail;
             indices = tmp1;
-            int * tmp2 = realloc(*data, cap_rows * sizeof(Cell*));
+            Cell * tmp2 = realloc(*data, cap_rows * sizeof(Cell*));
             if (!tmp2) goto big_fail;
-            data = tmp2;
+            *data = tmp2;
         }
 
         printf("%s", buf);
@@ -70,21 +79,19 @@ int main(int argc, char *argv[])
 
         int num_row_cells = 0;
         success = string_to_cell_and_index(buf,&(data[num_rows]), & num_row_cells, &(indices[num_rows]));
+        int_int_ht_set(&i_ht, indices[num_rows], num_rows);
         success &= num_row_cells == num_headers-1; // first header is empty / doesn't count
         if (!success)
             goto big_fail;
         ++num_rows;
     }
 
-    IntIntHashTable i_ht;
-    int_int_ht_init(&i_ht);
-    int_int_ht_set(&i_ht, 42, 666);
-    int out = 0;
-    int_int_ht_get(&i_ht, 42, &out);
-    printf("\nHASH TEST:\n");
-    printf("%d\n", out);
-    int_int_ht_destroy(&i_ht);
+    // int out = 0;
+    // int_int_ht_get(&i_ht, 42, &out);
+    // printf("\nHASH TEST:\n");
+    // printf("%d\n", out);
 
+    int_int_ht_destroy(&i_ht);
     free_tokens(headers, num_headers);
     fclose(file);
     free(headers_str);
