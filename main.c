@@ -12,6 +12,115 @@
 - следующие строки это M строк c N+1 значениями, где первое значение в строке это индекс записи (может быть не по порядку)
 */
 
+typedef enum 
+{
+    PLUS,
+    MINUS,
+    DIV,
+    MUL,
+    INVALID_OP_TYPE
+} OP_TYPE;
+
+int calc_recursive(int *indices, Cell **data, IntIntHashTable *i_ht, StrIntHashTable *str_ht, int i, int j) 
+{
+    if (data[i][j].cell_type == VALUE)
+        return data[i][j].val;
+
+    if (data[i][j].cell_type == PROCESSING) 
+    {
+        printf("CYCLE!");
+        exit(1);
+    }
+
+    char * tmp = malloc(1024);
+
+    strcpy(tmp, data[i][j].expression);
+
+    data[i][j].cell_type = PROCESSING;
+
+    OP_TYPE op_type = INVALID_OP_TYPE;
+    char * op_pos = NULL;
+
+    if (op_pos = strchr(tmp, '+'))
+        op_type = PLUS;
+    else if (op_pos = strchr(tmp, '-'))
+        op_type = MINUS;
+    else if (op_pos = strchr(tmp, '*'))
+        op_type = MUL;
+    else if (op_pos = strchr(tmp, '/'))
+        op_type = DIV;
+    *op_pos = 0;
+    char * arg1 = tmp + 1; // skip =
+    char * arg2 = op_pos + 1; // skip op char
+    int arg1val = -1;
+    int arg2val = -1;
+
+    char * parse_end = NULL;
+    arg1val = strtol(arg1, &parse_end, 10);
+    if (arg1val == -1) // не число! 
+    {
+        char *arg1idxpos = arg1;
+        while (!isdigit(*arg1idxpos))
+            ++arg1idxpos;
+
+        int arg1idx_val = -1;
+        arg1idx_val = strtol(arg1idxpos, &parse_end, 10);
+        *arg1idxpos = 0;
+
+        int row_idx = -1;
+        int_int_ht_get(&i_ht, arg1idx_val, &row_idx);
+    
+        int column_idx = -1;
+        str_int_ht_get(&str_ht, arg1, &column_idx);
+
+        arg1val = calc_recursive(indices, data, i_ht, str_ht, row_idx, column_idx);
+    }
+
+    parse_end = NULL;
+    arg2val = strtol(arg2, &parse_end, 10);
+    if (arg2val == -1) // не число! 
+    {
+        char *arg2idxpos = arg2;
+        while (!isdigit(*arg2idxpos))
+            ++arg2idxpos;
+
+        int arg2idx_val = -1;
+        arg2idx_val = strtol(arg2idxpos, &parse_end, 10);
+        *arg2idxpos = 0;
+
+        int row_idx = -1;
+        int_int_ht_get(&i_ht, arg2idx_val, &row_idx);
+    
+        int column_idx = -1;
+        str_int_ht_get(&str_ht, arg2, &column_idx);
+
+        arg2val = calc_recursive(indices, data, i_ht, str_ht, row_idx, column_idx);
+    }
+
+    int res = -1;
+    switch(op_type) 
+    {
+        case PLUS:
+            res = arg1val + arg2val;
+            break;
+        case MINUS:
+            res = arg1val - arg2val;
+            break;
+        case DIV:
+            res = arg1val / arg2val;
+            break;
+        case MUL:
+            res = arg1val * arg2val;
+            break;
+    }
+
+    data[i][j].val = res;
+    data[i][j].cell_type = VALUE;
+
+    free(tmp);
+    return res;
+}
+
 int main(int argc, char *argv[])
 {
     // Check command line arguments
@@ -88,35 +197,50 @@ int main(int argc, char *argv[])
     }
 
     printf("\n");
+    printf("\n");
+    for (int i = 0; i < num_rows; i++) 
     {
-        int testkey = 1;
-        int testvalue = 0;
-        int_int_ht_get(&i_ht, testkey, &testvalue);
-        printf("%d -> %d\n", testkey, testvalue);
-        testkey = 2;
-        testvalue = 0;
-        int_int_ht_get(&i_ht, testkey, &testvalue);
-        printf("%d -> %d\n", testkey, testvalue);
-        testkey = 30;
-        testvalue = 0;
-        int_int_ht_get(&i_ht, testkey, &testvalue);
-        printf("%d -> %d\n", testkey, testvalue);
+        printf("%d: ", indices[i]);
+        for (int j = 0; j < num_rows; j++) 
+        {
+            if (data[i][j].cell_type == VALUE)
+                printf("%d,", data[i][j].val);
+            else if (data[i][j].cell_type == EXPRESSION)
+                printf("%s,", data[i][j].expression);
+        }        
+        printf("\n");
     }
 
-    {
-        char * testkey1 = "A";
-        char * testkey2 = "B";
-        char * testkey3 = "Cell";
-        int testvalue = 666;
-        str_int_ht_get(&str_ht, testkey1, &testvalue);
-        printf("%s -> %d\n", testkey1, testvalue);
-        testvalue = 666;
-        str_int_ht_get(&str_ht, testkey2, &testvalue);
-        printf("%s -> %d\n", testkey2, testvalue);
-        testvalue = 666;
-        str_int_ht_get(&str_ht, testkey3, &testvalue);
-        printf("%s -> %d\n", testkey3, testvalue);
-    }
+    // printf("\n");
+    // {
+    //     int testkey = 1;
+    //     int testvalue = 0;
+    //     int_int_ht_get(&i_ht, testkey, &testvalue);
+    //     printf("%d -> %d\n", testkey, testvalue);
+    //     testkey = 2;
+    //     testvalue = 0;
+    //     int_int_ht_get(&i_ht, testkey, &testvalue);
+    //     printf("%d -> %d\n", testkey, testvalue);
+    //     testkey = 30;
+    //     testvalue = 0;
+    //     int_int_ht_get(&i_ht, testkey, &testvalue);
+    //     printf("%d -> %d\n", testkey, testvalue);
+    // }
+
+    // {
+    //     char * testkey1 = "A";
+    //     char * testkey2 = "B";
+    //     char * testkey3 = "Cell";
+    //     int testvalue = 666;
+    //     str_int_ht_get(&str_ht, testkey1, &testvalue);
+    //     printf("%s -> %d\n", testkey1, testvalue);
+    //     testvalue = 666;
+    //     str_int_ht_get(&str_ht, testkey2, &testvalue);
+    //     printf("%s -> %d\n", testkey2, testvalue);
+    //     testvalue = 666;
+    //     str_int_ht_get(&str_ht, testkey3, &testvalue);
+    //     printf("%s -> %d\n", testkey3, testvalue);
+    // }
 
     int_int_ht_destroy(&i_ht);
     str_int_ht_destroy(&str_ht);
