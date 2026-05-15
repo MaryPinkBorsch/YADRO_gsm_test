@@ -182,7 +182,6 @@ int main(int argc, char *argv[])
             *data = tmp2;
         }
 
-        printf("%s", buf);
         success = read_line(file, &buf, &capacity);
         if (!success)
             break;
@@ -196,55 +195,32 @@ int main(int argc, char *argv[])
         ++num_rows;
     }
 
-    printf("\n");
-    printf("\n");
+    for (int i = 0; i < num_headers; i++) 
     {
-        int testkey = 1;
-        int testvalue = 0;
-        int_int_ht_get(&i_ht, testkey, &testvalue);
-        printf("%d -> %d\n", testkey, testvalue);
-        testkey = 2;
-        testvalue = 0;
-        int_int_ht_get(&i_ht, testkey, &testvalue);
-        printf("%d -> %d\n", testkey, testvalue);
-        testkey = 30;
-        testvalue = 0;
-        int_int_ht_get(&i_ht, testkey, &testvalue);
-        printf("%d -> %d\n", testkey, testvalue);
+        printf("%s",headers[i]);
+        if (i != num_headers-1)
+            printf(",");
     }
+    printf("\n");
 
-    {
-        char * testkey1 = "A";
-        char * testkey2 = "B";
-        char * testkey3 = "Cell";
-        int testvalue = 666;
-        str_int_ht_get(&str_ht, testkey1, &testvalue);
-        printf("%s -> %d\n", testkey1, testvalue);
-        testvalue = 666;
-        str_int_ht_get(&str_ht, testkey2, &testvalue);
-        printf("%s -> %d\n", testkey2, testvalue);
-        testvalue = 666;
-        str_int_ht_get(&str_ht, testkey3, &testvalue);
-        printf("%s -> %d\n", testkey3, testvalue);
-    }
-    printf("\n");
-    printf("\n");
     for (int i = 0; i < num_rows; i++) 
     {
-        printf("%d: ", indices[i]);
-        for (int j = 0; j < num_rows; j++) 
+        printf("%d,", indices[i]);
+        for (int j = 0; j < num_headers - 1; j++) 
         {
             if (data[i][j].cell_type == VALUE)
-                printf("%d,", data[i][j].val);
+                printf("%d", data[i][j].val);
             else if (data[i][j].cell_type == EXPRESSION) 
             {
-                printf("(%s=>", data[i][j].expression);
                 calc_recursive(indices,data, &i_ht, &str_ht, i,j);
-                printf("%d),", data[i][j].val);
+                printf("%d", data[i][j].val);
             }
+            if (j != num_headers - 2) // WTF
+                printf(",");
         }        
         printf("\n");
     }
+    printf("\n");
 
     int_int_ht_destroy(&i_ht);
     str_int_ht_destroy(&str_ht);
