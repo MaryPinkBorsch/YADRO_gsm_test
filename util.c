@@ -272,7 +272,7 @@ bool string_to_cell_and_index(const char *str, Cell ** out_cells, int *out_num_c
         if (!tmp) goto fail_toks;
         *out_cells = tmp;
     }
-    end = start + strlen(start);
+    end = start + strlen(start); // у последнего элемента надо выставить end в конец строки
     if (*start == '=') 
     {
         // parse function

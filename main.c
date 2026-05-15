@@ -116,6 +116,7 @@ int calc_recursive(int *indices, Cell **data, IntIntHashTable *i_ht, StrIntHashT
 
     data[i][j].val = res;
     data[i][j].cell_type = VALUE;
+    //free(data[i][j].expression); TODO: здесь должна очищаться память но оно падает а времени разбираться нет
 
     free(tmp);
     return res;
