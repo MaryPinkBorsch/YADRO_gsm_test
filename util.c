@@ -272,6 +272,7 @@ bool string_to_cell_and_index(const char *str, Cell ** out_cells, int *out_num_c
         if (!tmp) goto fail_toks;
         *out_cells = tmp;
     }
+    end = start + strlen(start);
     if (*start == '=') 
     {
         // parse function

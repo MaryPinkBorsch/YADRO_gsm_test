@@ -117,9 +117,10 @@ class TestTableGenerator:
                     self.data[row_num][col_idx] = str(self._get_random_positive_number())
     
     def save_to_csv(self, filename: str):
-        """Сохранение таблицы в CSV файл"""
+        """Сохранение таблицы в CSV файл с Unix line endings (\\n)"""
         with open(filename, 'w', newline='', encoding='utf-8') as csvfile:
-            writer = csv.writer(csvfile)
+            # Используем lineterminator='\n' для Unix line endings
+            writer = csv.writer(csvfile, lineterminator='\n')
             header = [''] + self.column_names
             writer.writerow(header)
             
@@ -130,11 +131,12 @@ class TestTableGenerator:
         print(f"CSV файл успешно создан: {filename} (строк: {len(self.data)}, столбцов: {self.num_cols})")
     
     def save_to_csv_with_cell(self, filename: str):
-        """Сохранение таблицы в CSV файл со столбцом 'Cell'"""
+        """Сохранение таблицы в CSV файл со столбцом 'Cell' с Unix line endings (\\n)"""
         cols_with_cell = self.column_names + ['Cell']
         
         with open(filename, 'w', newline='', encoding='utf-8') as csvfile:
-            writer = csv.writer(csvfile)
+            # Используем lineterminator='\n' для Unix line endings
+            writer = csv.writer(csvfile, lineterminator='\n')
             header = [''] + cols_with_cell
             writer.writerow(header)
             
@@ -320,7 +322,7 @@ def generate_all_test_tables():
     Генерация всех типов тестовых таблиц
     """
     print("="*70)
-    print("НАЧАЛО ГЕНЕРАЦИИ ТЕСТОВЫХ ТАБЛИЦ CSV")
+    print("НАЧАЛО ГЕНЕРАЦИИ ТЕСТОВЫХ ТАБЛИЦ CSV (Unix line endings \\n)")
     print("="*70)
     
     # Создаем основные директории
@@ -347,20 +349,21 @@ def generate_all_test_tables():
     print("├── incremental_columns/  # Таблицы с увеличивающимся числом столбцов")
     print("├── edge_cases/          # Краевые случаи")
     print("└── example_from_task.csv # Пример из задания")
+    print("\nВсе файлы используют Unix line endings (\\n)")
 
 def create_exactly_as_example():
-    """Создает файл, точно соответствующий примеру из задания (с пробелами как в примере)"""
+    """Создает файл, точно соответствующий примеру из задания с Unix line endings"""
     filename = 'test_csv_files/example_from_task.csv'
     
     data = [
         ['', 'A', 'B', 'Cell'],
         ['1', '1', '0', '1'],
-        ['2', '2', '= A1+Cell30', '0'],  # В примере нет пробелов
+        ['2', '2', '= A1+Cell30', '0'],
         ['30', '0', '= B1+A1', '5']
     ]
     
     with open(filename, 'w', newline='', encoding='utf-8') as csvfile:
-        writer = csv.writer(csvfile)
+        writer = csv.writer(csvfile, lineterminator='\n')
         writer.writerows(data)
     
     print(f"\nФайл с примером создан: {filename}")
@@ -403,6 +406,10 @@ def generate_summary_report():
         f.write("   - Поддерживаются операции: +, -, *, /\n")
         f.write("   - Аргументы: целые положительные числа или адреса ячеек\n\n")
         
+        f.write("ФОРМАТ СТРОК:\n")
+        f.write("   - Используются Unix line endings (\\n)\n")
+        f.write("   - Кодировка UTF-8\n\n")
+        
         f.write("Все числа в таблицах положительные.\n")
     
     print(f"\nОтчет сохранен: {report_path}")
@@ -427,7 +434,7 @@ def generate_demo_table():
     col_names = ['A', 'B', 'C', 'Cell']
     
     with open('test_csv_files/demo_table.csv', 'w', newline='', encoding='utf-8') as csvfile:
-        writer = csv.writer(csvfile)
+        writer = csv.writer(csvfile, lineterminator='\n')
         writer.writerow([''] + col_names)
         
         for row_num in sorted(demo_data.keys()):
@@ -457,8 +464,8 @@ if __name__ == "__main__":
     generate_summary_report()
     
     print("\n" + "="*50)
-    print("ВАЖНО: Все формулы теперь записываются БЕЗ ПРОБЕЛОВ")
-    print("Пример: =A1+B2, =Cell5*3, =100/2")
+    print("ВАЖНО: Все файлы используют Unix line endings (\\n)")
+    print("Windows-пользователи: большинство редакторов корректно отображают \\n")
     print("="*50)
     
     print("\nСОВЕТ: Для просмотра всех сгенерированных файлов")
